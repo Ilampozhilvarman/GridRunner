@@ -41,6 +41,15 @@ function love.load()
     print(grid.height)
 end
 
+local function startGame()
+    for i = 0, grid.cols - 1 do
+        for j = 0, grid.rows - 1 do
+            local isOn = math.random() < 0.1
+            grid.cells[i][j].on = isOn
+        end
+    end
+end
+
 local function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2)
     return x1 < x2 + w2 and
         x1 + w1 > x2 and
@@ -49,7 +58,9 @@ local function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2)
 end
 
 function love.update(dt)
-
+    if love.keyboard.isDown("lshift") then
+        startGame()
+    end
 end
 
 function love.draw()
