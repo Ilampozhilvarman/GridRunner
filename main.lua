@@ -12,15 +12,20 @@ function love.load()
     player = {
         x = game.middle.x,
         y = game.middle.y,
-        speed = 20,
+        speed = 100,
         jumpKey = "space",
         leftKey = "a",
         rightKey = "d",
+        radius = 25,
+        yVelocity = 0,
+        gravity = 800,
+        jumpForce = -400,
+        onGround = true
     }
     grid = {
         width = love.graphics.getWidth(),
         height = love.graphics.getHeight(),
-        cellSize = 30,
+        cellSize = 45,
         cells = {}
     }
     grid.cols = math.floor(grid.width / grid.cellSize)
@@ -44,7 +49,7 @@ end
 local function startGame()
     for i = 0, grid.cols - 1 do
         for j = 0, grid.rows - 1 do
-            local isOn = math.random() < 0.1
+            local isOn = math.random() < 0.3
             grid.cells[i][j].on = isOn
         end
     end
@@ -61,6 +66,32 @@ function love.update(dt)
     if love.keyboard.isDown("lshift") then
         startGame()
     end
+    if love.keyboard.isDown(player.leftKey) then
+        player.x = player.x - player.speed * dt
+    end
+    if love.keyboard.isDown(player.rightKey) then
+        player.x = player.x + player.speed * dt
+    end
+    player.yVelocity = player.yVelocity + player.gravity * dt
+    player.y = player.y + player.yVelocity * dt
+
+    local ground = 300
+
+    for i = 0, grid.cols - 1 do
+        for j = 0, grid.rows - 1 do
+            local cell = grid.cells[i][j]
+            if checkCollision(player.x, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
+                player.y = cell.y - player.radius
+                player.yVelocity = 0
+                player.onGround = true
+            end
+        end
+    end
+
+    if love.keyboard.isDown(player.jumpKey) and player.onGround then
+        player.yVelocity = player.jumpForce
+        player.onGround = false
+    end
 end
 
 function love.draw()
@@ -71,4 +102,7 @@ function love.draw()
             end
         end
     end
+    love.graphics.setColor(1, 0, 0)
+    love.graphics.rectangle("line", player.x, player.y, player.radius, player.radius)
+    love.graphics.setColor(1, 1, 1)
 end
