@@ -14,7 +14,7 @@ function love.load()
     player = {
         x = game.middle.x,
         y = game.middle.y,
-        speed = 500,
+        speed = 400,
         jumpKey = "space",
         leftKey = "a",
         rightKey = "d",
@@ -78,9 +78,14 @@ function love.update(dt)
         for j = 0, grid.rows - 1 do
             local cell = grid.cells[i][j]
             if cell.on and checkCollision(player.x, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
-                player.y = cell.y - player.radius
-                player.yVelocity = 0
-                player.onGround = true
+                if player.yVelocity > 0 then
+                    player.y = cell.y - player.radius
+                    player.yVelocity = 0
+                    player.onGround = true
+                elseif player.yVelocity < 0 then
+                    player.y = cell.y + grid.cellSize
+                    player.yVelocity = 0
+                end
             end
         end
     end
