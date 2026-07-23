@@ -9,7 +9,13 @@ function love.load()
             y = love.graphics.getHeight() / 2,
         },
         score = 0,
-        started = false
+        started = false,
+        max = {
+            x = love.graphics.getWidth(),
+            y = love.graphics.getHeight()
+        },
+        gridTimer = 0,
+        gridInterval = 1.5
     }
     player = {
         x = game.middle.x,
@@ -49,7 +55,7 @@ function love.load()
     print(grid.height)
 end
 
-local function startGame()
+local function randomizeGrid()
     for i = 0, grid.cols - 1 do
         for j = 0, grid.rows - 1 do
             local isOn = math.random() < 0.3
@@ -68,20 +74,42 @@ local function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2)
         y1 + h1 > y2
 end
 
+local function reset()
+    game.score = 0
+    game.started = false
+end
 function love.update(dt)
     player.yVelocity = math.min(player.yVelocity + player.gravity * dt, grid.cellSize / dt * 0.9)
-    if not game.started then
-        startGame()
+    if not game.started and love.keyboard.isDown("lshift") then
         player.onGround = false
         game.started = true
+        randomizeGrid()
+    end
+
+    if game.started then
+        game.gridTimer = game.gridTimer + dt
+        if game.gridTimer >= game.gridInterval then
+            game.gridTimer = game.gridTimer - game.gridInterval
+            randomizeGrid()
+        end
+    end
+
+    if game.started and love.keyboard.isDown("r") then
+        reset()
     end
     player.y = player.y + player.yVelocity * dt
 
+    if player.x > game.max.x or player.x < 0 or player.y > game.max.y or player.y < 0 then
+        game.started = false
+    end
     --local ground = 300
     for i = 0, grid.cols - 1 do
         for j = 0, grid.rows - 1 do
             local cell = grid.cells[i][j]
             if cell.on and checkCollision(player.x, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
+                if cell.danger then
+                    game.started = false
+                end
                 if player.yVelocity > 0 then
                     player.y = cell.y - player.radius
                     player.yVelocity = 0
@@ -107,6 +135,9 @@ function love.update(dt)
         for j = 0, grid.rows - 1 do
             local cell = grid.cells[i][j]
             if cell.on and checkCollision(newX, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
+                if cell.danger then
+                    game.started = false
+                end
                 blockedX = true
             end
         end
@@ -123,19 +154,23 @@ function love.update(dt)
 end
 
 function love.draw()
-    for i = 0, grid.cols - 1 do
-        for j = 0, grid.rows - 1 do
-            if grid.cells[i][j].on then
-                if grid.cells[i][j].danger then
-                    love.graphics.setColor(1, 0, 0)
-                else
-                    love.graphics.setColor(1, 1, 1)
+    if game.started then
+        for i = 0, grid.cols - 1 do
+            for j = 0, grid.rows - 1 do
+                if grid.cells[i][j].on then
+                    if grid.cells[i][j].danger then
+                        love.graphics.setColor(1, 0, 0)
+                    else
+                        love.graphics.setColor(1, 1, 1)
+                    end
+                    love.graphics.rectangle("line", grid.cells[i][j].x, grid.cells[i][j].y, grid.cellSize, grid.cellSize)
                 end
-                love.graphics.rectangle("line", grid.cells[i][j].x, grid.cells[i][j].y, grid.cellSize, grid.cellSize)
             end
         end
+        love.graphics.setColor(0, 1, 0)
+        love.graphics.rectangle("line", player.x, player.y, player.radius, player.radius)
+        love.graphics.setColor(1, 1, 1)
+    else
+        love.graphics.printf("Game over, press lshift to try again.", game.middle.x, game.middle.y, 900, "center")
     end
-    love.graphics.setColor(0, 1, 0)
-    love.graphics.rectangle("line", player.x, player.y, player.radius, player.radius)
-    love.graphics.setColor(1, 1, 1)
 end
