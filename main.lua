@@ -7,12 +7,13 @@ function love.load()
             x = love.graphics.getWidth() / 2,
             y = love.graphics.getHeight() / 2,
         },
-        score = 0
+        score = 0,
+        started = false
     }
     player = {
         x = game.middle.x,
         y = game.middle.y,
-        speed = 100,
+        speed = 500,
         jumpKey = "space",
         leftKey = "a",
         rightKey = "d",
@@ -63,8 +64,10 @@ local function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2)
 end
 
 function love.update(dt)
-    if love.keyboard.isDown("lshift") then
+    if not game.started then
         startGame()
+        player.onGround = false
+        game.started = true
     end
     if love.keyboard.isDown(player.leftKey) then
         player.x = player.x - player.speed * dt
@@ -80,7 +83,7 @@ function love.update(dt)
     for i = 0, grid.cols - 1 do
         for j = 0, grid.rows - 1 do
             local cell = grid.cells[i][j]
-            if checkCollision(player.x, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
+            if cell.on and checkCollision(player.x, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
                 player.y = cell.y - player.radius
                 player.yVelocity = 0
                 player.onGround = true
