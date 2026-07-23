@@ -2,6 +2,7 @@ local game
 local player
 local grid
 function love.load()
+    math.randomseed(os.time())
     game = {
         middle = {
             x = love.graphics.getWidth() / 2,
@@ -64,22 +65,15 @@ local function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2)
 end
 
 function love.update(dt)
+    player.yVelocity = math.min(player.yVelocity + player.gravity * dt, grid.cellSize / dt * 0.9)
     if not game.started then
         startGame()
         player.onGround = false
         game.started = true
     end
-    if love.keyboard.isDown(player.leftKey) then
-        player.x = player.x - player.speed * dt
-    end
-    if love.keyboard.isDown(player.rightKey) then
-        player.x = player.x + player.speed * dt
-    end
-    player.yVelocity = player.yVelocity + player.gravity * dt
     player.y = player.y + player.yVelocity * dt
 
-    local ground = 300
-
+    --local ground = 300
     for i = 0, grid.cols - 1 do
         for j = 0, grid.rows - 1 do
             local cell = grid.cells[i][j]
@@ -89,6 +83,28 @@ function love.update(dt)
                 player.onGround = true
             end
         end
+    end
+
+    local newX = player.x
+    if love.keyboard.isDown(player.leftKey) then
+        newX = newX - player.speed * dt
+    end
+    if love.keyboard.isDown(player.rightKey) then
+        newX = newX + player.speed * dt
+    end
+
+    local blockedX = false
+    for i = 0, grid.cols - 1 do
+        for j = 0, grid.rows - 1 do
+            local cell = grid.cells[i][j]
+            if cell.on and checkCollision(newX, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
+                blockedX = true
+            end
+        end
+    end
+
+    if not blockedX then
+        player.x = newX
     end
 
     if love.keyboard.isDown(player.jumpKey) and player.onGround then
