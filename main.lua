@@ -40,7 +40,8 @@ function love.load()
                     y = j * grid.cellSize,
                     width = grid.cellSize,
                     height = grid.cellSize,
-                    on = true
+                    on = true,
+                    danger = false
                 }
             end
         end
@@ -53,6 +54,9 @@ local function startGame()
         for j = 0, grid.rows - 1 do
             local isOn = math.random() < 0.3
             grid.cells[i][j].on = isOn
+            if grid.cells[i][j].on then
+                grid.cells[i][j].danger = math.random() < 0.3
+            end
         end
     end
 end
@@ -122,11 +126,16 @@ function love.draw()
     for i = 0, grid.cols - 1 do
         for j = 0, grid.rows - 1 do
             if grid.cells[i][j].on then
+                if grid.cells[i][j].danger then
+                    love.graphics.setColor(1, 0, 0)
+                else
+                    love.graphics.setColor(1, 1, 1)
+                end
                 love.graphics.rectangle("line", grid.cells[i][j].x, grid.cells[i][j].y, grid.cellSize, grid.cellSize)
             end
         end
     end
-    love.graphics.setColor(1, 0, 0)
+    love.graphics.setColor(0, 1, 0)
     love.graphics.rectangle("line", player.x, player.y, player.radius, player.radius)
     love.graphics.setColor(1, 1, 1)
 end
