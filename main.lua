@@ -15,7 +15,10 @@ function love.load()
             y = love.graphics.getHeight()
         },
         gridTimer = 0,
-        gridInterval = 1.5
+        gridInterval = 1.5,
+        dying = false,
+        deathTimer = 0,
+        deathDuration = 1
     }
     player = {
         x = game.middle.x,
@@ -78,6 +81,8 @@ end
 local function reset()
     game.score = 0
     game.started = false
+    game.dying = false
+    game.deathTimer = 0
     player.x = game.middle.x
     player.y = game.middle.y
     player.yVelocity = 0
@@ -86,6 +91,15 @@ local function reset()
 end
 
 function love.update(dt)
+    if game.dying then
+        game.deathTimer = game.deathTimer + dt
+        if game.deathTimer >= game.deathDuration then
+            game.dying = false
+            game.deathTimer = 0
+            game.started = false
+        end
+        return
+    end
     player.yVelocity = math.min(player.yVelocity + player.gravity * dt, 1000)
     if not game.started and love.keyboard.isDown("lshift") then
         reset()
@@ -108,15 +122,19 @@ function love.update(dt)
     player.y = player.y + player.yVelocity * dt
 
     if player.x > game.max.x or player.x < 0 or player.y > game.max.y or player.y < 0 then
-        game.started = false
+        if game.started and not game.dying then
+            game.dying = true
+            player.dead = true
+        end
     end
     --local ground = 300
     for i = 0, grid.cols - 1 do
         for j = 0, grid.rows - 1 do
             local cell = grid.cells[i][j]
             if cell.on and checkCollision(player.x, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
-                if cell.danger then
-                    game.started = false
+                if cell.danger and not game.dying and game.started then
+                    game.dying = true
+                    player.dead = true
                 end
                 if player.yVelocity > 0 then
                     player.y = cell.y - player.radius
@@ -143,8 +161,8 @@ function love.update(dt)
         for j = 0, grid.rows - 1 do
             local cell = grid.cells[i][j]
             if cell.on and checkCollision(newX, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
-                if cell.danger then
-                    game.started = false
+                if cell.danger and not game.dying and game.started then
+                    game.dying = false
                     player.dead = true
                 end
                 blockedX = true
@@ -163,7 +181,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    if game.started then
+    if game.started or game.dying then
         for i = 0, grid.cols - 1 do
             for j = 0, grid.rows - 1 do
                 if grid.cells[i][j].on then
@@ -182,7 +200,13 @@ function love.draw()
     else
         love.graphics.printf("Game over, press lshift to try again.", game.middle.x, game.middle.y, 900, "center")
     end
-    if player.dead then
-        love.graphics.clear(1, 0, 0)
+
+    if game.dying then
+        local flashOn = math.floor(game.deathTimer / 0.1) % 2 == 0
+        if flashOn then
+            love.graphics.setColor(1, 0, 0, 0.6)
+            love.graphics.rectangle("fill", 0, 0, game.max.x, game.max.y)
+            love.graphics.setColor(1, 1, 1, 1)
+        end
     end
 end
