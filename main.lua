@@ -28,7 +28,8 @@ function love.load()
         yVelocity = 0,
         gravity = 800,
         jumpForce = -400,
-        onGround = true
+        onGround = true,
+        dead = false
     }
     grid = {
         width = love.graphics.getWidth(),
@@ -77,7 +78,13 @@ end
 local function reset()
     game.score = 0
     game.started = false
+    player.x = game.middle.x
+    player.y = game.middle.y
+    player.yVelocity = 0
+    player.onGround = true
+    player.dead = false
 end
+
 function love.update(dt)
     player.yVelocity = math.min(player.yVelocity + player.gravity * dt, grid.cellSize / dt * 0.9)
     if not game.started and love.keyboard.isDown("lshift") then
@@ -137,6 +144,7 @@ function love.update(dt)
             if cell.on and checkCollision(newX, player.y, player.radius, player.radius, cell.x, cell.y, grid.cellSize, grid.cellSize) then
                 if cell.danger then
                     game.started = false
+                    player.dead = true
                 end
                 blockedX = true
             end
@@ -172,5 +180,8 @@ function love.draw()
         love.graphics.setColor(1, 1, 1)
     else
         love.graphics.printf("Game over, press lshift to try again.", game.middle.x, game.middle.y, 900, "center")
+    end
+    if player.dead then
+        love.graphics.clear(1, 0, 0)
     end
 end
