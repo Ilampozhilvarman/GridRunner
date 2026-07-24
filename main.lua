@@ -101,7 +101,7 @@ function love.update(dt)
         end
     end
 
-    if game.started and love.keyboard.isDown("r") then
+    if not game.started and love.keyboard.isDown("r") then
         reset()
     end
     player.y = player.y + player.yVelocity * dt
