@@ -88,6 +88,7 @@ end
 function love.update(dt)
     player.yVelocity = math.min(player.yVelocity + player.gravity * dt, grid.cellSize / dt * 0.9)
     if not game.started and love.keyboard.isDown("lshift") then
+        reset()
         player.onGround = false
         game.started = true
         randomizeGrid()
