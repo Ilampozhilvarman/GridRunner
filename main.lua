@@ -86,7 +86,7 @@ local function reset()
 end
 
 function love.update(dt)
-    player.yVelocity = math.min(player.yVelocity + player.gravity * dt, grid.cellSize / dt * 0.9)
+    player.yVelocity = math.min(player.yVelocity + player.gravity * dt, 1000)
     if not game.started and love.keyboard.isDown("lshift") then
         reset()
         player.onGround = false
