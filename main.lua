@@ -16,7 +16,9 @@ function love.load()
             y = love.graphics.getHeight()
         },
         gridTimer = 0,
-        gridInterval = 1.5,
+        gridInterval = 2,
+        gridDecreaseTimeInterval = 0.1,
+        gridMinTimeInterval = 0.5,
         dying = false,
         deathTimer = 0,
         deathDuration = 1,
@@ -185,6 +187,9 @@ function love.update(dt)
             resolveEmbeddedPlayer()
             game.previewing = false
             game.score = game.score + 1
+            if game.gridTimer - game.gridDecreaseTimeInterval < game.gridMinTimeInterval then
+                game.gridTimer = game.gridTimer - game.gridDecreaseTimeInterval
+            end
         end
     end
 
