@@ -202,6 +202,7 @@ function love.update(dt)
         if game.started and not game.dying then
             game.dying = true
             player.dead = true
+            game.previewing = false
         end
     end
     --local ground = 300
