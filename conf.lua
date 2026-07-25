@@ -1,5 +1,5 @@
 function love.conf(t)
-    t.window.title = "Grid Runer"
+    t.window.title = "Grid Runner"
     t.window.fullscreen = true
     t.window.fullscreentype = "desktop"
     t.window.msaa = 16
