@@ -273,7 +273,7 @@ function love.draw()
             end
         end
         love.graphics.setColor(0, 1, 0)
-        love.graphics.rectangle("line", player.x, player.y, player.radius, player.radius)
+        love.graphics.rectangle("fill", player.x, player.y, player.radius, player.radius)
         love.graphics.setColor(1, 1, 1)
     else
         love.graphics.printf("Game over, press lshift to try again.", game.middle.x - 450, game.middle.y, 900, "center")
