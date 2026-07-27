@@ -276,8 +276,8 @@ function love.draw()
         love.graphics.rectangle("line", player.x, player.y, player.radius, player.radius)
         love.graphics.setColor(1, 1, 1)
     else
-        love.graphics.printf("Game over, press lshift to try again.", game.middle.x, game.middle.y, 900, "center")
-        love.graphics.printf("Score: " .. game.score, game.middle.x, game.middle.y, 600, "center")
+        love.graphics.printf("Game over, press lshift to try again.", game.middle.x - 450, game.middle.y, 900, "center")
+        love.graphics.printf("Score: " .. game.score, game.middle.x - 300, game.middle.y + 30, 600, "center")
     end
 
     if game.dying then
