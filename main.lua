@@ -266,9 +266,9 @@ function love.draw()
                     if grid.cells[i][j].danger then
                         love.graphics.setColor(1, 0, 0)
                     else
-                        love.graphics.setColor(1, 1, 1)
+                        love.graphics.setColor(0.8, 0.8, 0.8)
                     end
-                    love.graphics.rectangle("line", grid.cells[i][j].x, grid.cells[i][j].y, grid.cellSize, grid.cellSize)
+                    love.graphics.rectangle("fill", grid.cells[i][j].x, grid.cells[i][j].y, grid.cellSize, grid.cellSize)
                 end
             end
         end
@@ -295,9 +295,9 @@ function love.draw()
                 local pCell = previewGrid.cells[i][j]
                 if pCell.on then
                     if pCell.danger then
-                        love.graphics.setColor(1, 0, 0, 0.35)
+                        love.graphics.setColor(1, 0, 0, 0.25)
                     else
-                        love.graphics.setColor(1, 1, 0, 0.25)
+                        love.graphics.setColor(0.8, 0.8, 0.8, 0.25)
                     end
                     love.graphics.rectangle("fill", pCell.x, pCell.y, grid.cellSize, grid.cellSize)
                 end
