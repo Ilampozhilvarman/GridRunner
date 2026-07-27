@@ -23,7 +23,8 @@ function love.load()
         deathTimer = 0,
         deathDuration = 1,
         previewTime = 1,
-        previewing = true
+        previewing = true,
+        font = love.graphics.newFont(48)
     }
     player = {
         x = game.middle.x,
@@ -259,6 +260,7 @@ function love.update(dt)
 end
 
 function love.draw()
+    love.graphics.setFont(game.font)
     if game.started or game.dying then
         for i = 0, grid.cols - 1 do
             for j = 0, grid.rows - 1 do
@@ -276,8 +278,8 @@ function love.draw()
         love.graphics.rectangle("fill", player.x, player.y, player.radius, player.radius)
         love.graphics.setColor(1, 1, 1)
     else
-        love.graphics.printf("Game over, press lshift to try again.", game.middle.x - 450, game.middle.y, 900, "center")
-        love.graphics.printf("Score: " .. game.score, game.middle.x - 300, game.middle.y + 30, 600, "center")
+        love.graphics.printf("Game over, press lshift to try again.", game.middle.x - 450, game.middle.y - 50, 900, "center")
+        love.graphics.printf("Score: " .. game.score, game.middle.x - 300, game.middle.y + 50, 600, "center")
     end
 
     if game.dying then
