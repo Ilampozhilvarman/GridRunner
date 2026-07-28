@@ -2,6 +2,18 @@ local game
 local player
 local grid
 local previewGrid
+
+local function loadHighScore()
+    if love.filesystem.getInfo("highscore.txt") then
+        local contents = love.filesystem.read("highscore.txt")
+        game.highScore = tonumber(contents) or 0
+    end
+end
+
+local function saveHighScore()
+    love.filesystem.write("highscore.txt", tostring(game.highScore))
+end
+
 function love.load()
     math.randomseed(os.time())
     game = {
@@ -24,7 +36,8 @@ function love.load()
         deathDuration = 1,
         previewTime = 1,
         previewing = true,
-        font = love.graphics.newFont(48)
+        font = love.graphics.newFont(48),
+        highScore = 0,
     }
     player = {
         x = game.middle.x,
@@ -79,6 +92,18 @@ function love.load()
     end
     print(grid.width)
     print(grid.height)
+    loadHighScore()
+end
+
+local function loadHighScore()
+    if love.filesystem.getInfo("highscore.txt") then
+        local contents = love.filesystem.read("highscore.txt")
+        game.highScore = tonumber(contents) or 0
+    end
+end
+
+local function saveHighScore()
+    love.filesystem.write("highscore.txt", tostring(game.highScore))
 end
 
 local function randomizeGrid(targetGrid)
@@ -163,6 +188,10 @@ function love.update(dt)
             game.dying = false
             game.deathTimer = 0
             game.started = false
+            if game.score > game.highScore then
+                game.highScore = game.score
+                saveHighScore()
+            end
         end
         return
     end
@@ -280,6 +309,7 @@ function love.draw()
     else
         love.graphics.printf("Game over, press enter to try again.", game.middle.x - 450, game.middle.y - 50, 900, "center")
         love.graphics.printf("Score: " .. game.score, game.middle.x - 300, game.middle.y + 50, 600, "center")
+        love.graphics.printf("High Score: " .. game.highScore, game.middle.x - 300, game.middle.y + 150, 600, "center")
     end
 
     if game.dying then
