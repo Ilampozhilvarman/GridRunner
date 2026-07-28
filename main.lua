@@ -95,17 +95,6 @@ function love.load()
     loadHighScore()
 end
 
-local function loadHighScore()
-    if love.filesystem.getInfo("highscore.txt") then
-        local contents = love.filesystem.read("highscore.txt")
-        game.highScore = tonumber(contents) or 0
-    end
-end
-
-local function saveHighScore()
-    love.filesystem.write("highscore.txt", tostring(game.highScore))
-end
-
 local function randomizeGrid(targetGrid)
     for i = 0, targetGrid.cols - 1 do
         for j = 0, targetGrid.rows - 1 do
