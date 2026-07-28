@@ -168,6 +168,7 @@ local function reset()
     player.yVelocity = 0
     player.onGround = true
     player.dead = false
+    game.gridInterval = 2
 end
 
 function love.update(dt)
@@ -206,8 +207,10 @@ function love.update(dt)
             resolveEmbeddedPlayer()
             game.previewing = false
             game.score = game.score + 1
-            if game.gridTimer - game.gridDecreaseTimeInterval < game.gridMinTimeInterval then
-                game.gridTimer = game.gridTimer - game.gridDecreaseTimeInterval
+            if game.gridInterval - game.gridDecreaseTimeInterval > game.gridMinTimeInterval then
+                game.gridInterval = game.gridInterval - game.gridDecreaseTimeInterval
+            else
+                game.gridInterval = game.gridMinTimeInterval
             end
         end
     end
@@ -275,6 +278,12 @@ function love.update(dt)
     if love.keyboard.isDown(player.jumpKey) and player.onGround then
         player.yVelocity = player.jumpForce
         player.onGround = false
+    end
+end
+
+function love.keypressed(key)
+    if key == "r" then
+        reset()
     end
 end
 
