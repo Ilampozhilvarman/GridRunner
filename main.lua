@@ -248,7 +248,7 @@ function love.update(dt)
             end
         end
     end
-
+    if game.dying then return end
     local newX = player.x
     if love.keyboard.isDown(player.leftKey) then
         newX = newX - player.speed * dt
@@ -256,7 +256,7 @@ function love.update(dt)
     if love.keyboard.isDown(player.rightKey) then
         newX = newX + player.speed * dt
     end
-
+    if game.dying then return end
     local blockedX = false
     for i = 0, grid.cols - 1 do
         for j = 0, grid.rows - 1 do
@@ -265,6 +265,7 @@ function love.update(dt)
                 if cell.danger and not game.dying and game.started then
                     game.dying = true
                     player.dead = true
+                    game.previewing = false
                 end
                 blockedX = true
             end
