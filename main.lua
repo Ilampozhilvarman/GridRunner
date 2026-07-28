@@ -167,7 +167,7 @@ function love.update(dt)
         return
     end
     player.yVelocity = math.min(player.yVelocity + player.gravity * dt, 1000)
-    if not game.started and love.keyboard.isDown("lshift") then
+    if not game.started and love.keyboard.isDown("return") then
         reset()
         player.onGround = false
         game.started = true
@@ -278,7 +278,7 @@ function love.draw()
         love.graphics.rectangle("fill", player.x, player.y, player.radius, player.radius)
         love.graphics.setColor(1, 1, 1)
     else
-        love.graphics.printf("Game over, press lshift to try again.", game.middle.x - 450, game.middle.y - 50, 900, "center")
+        love.graphics.printf("Game over, press enter to try again.", game.middle.x - 450, game.middle.y - 50, 900, "center")
         love.graphics.printf("Score: " .. game.score, game.middle.x - 300, game.middle.y + 50, 600, "center")
     end
 
