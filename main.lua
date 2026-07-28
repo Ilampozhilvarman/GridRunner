@@ -243,6 +243,7 @@ function love.update(dt)
                 if cell.danger and not game.dying and game.started then
                     game.dying = true
                     player.dead = true
+                    game.previewing = false
                 end
                 if player.yVelocity > 0 then
                     player.y = cell.y - player.radius
