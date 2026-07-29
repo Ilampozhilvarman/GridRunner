@@ -38,7 +38,10 @@ function love.load()
         previewing = true,
         font = love.graphics.newFont(48),
         highScore = 0,
-        paused = false
+        paused = false,
+        rebinding = nil,
+        menuIndex = 1,
+        actionOrder = {"jump", "left", "right", "retry", "new", "pause"}
     }
     player = {
         x = game.middle.x,
@@ -49,7 +52,7 @@ function love.load()
             left = "a",
             right = "d",
             retry = "r",
-            new = "enter",
+            new = "return",
             pause = "escape"
         },
         radius = 25,
@@ -178,6 +181,7 @@ local function reset()
 end
 
 function love.update(dt)
+    if game.paused then return end
     if game.dying then
         game.deathTimer = game.deathTimer + dt
         if game.deathTimer >= game.deathDuration then
@@ -192,7 +196,7 @@ function love.update(dt)
         return
     end
     player.yVelocity = math.min(player.yVelocity + player.gravity * dt, 1000)
-    if not game.started and love.keyboard.isDown("return") then
+    if not game.started and love.keyboard.isDown(player.keyMaps.new) then
         reset()
         player.onGround = false
         game.started = true
@@ -221,9 +225,6 @@ function love.update(dt)
         end
     end
 
-    if love.keyboard.isDown("r") then
-        reset()
-    end
     player.y = player.y + player.yVelocity * dt
 
     if player.x > game.max.x or player.x < 0 or player.y > game.max.y or player.y < 0 then
@@ -289,10 +290,41 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
+    -- if we're waiting for a new key to bind, capture it and stop
+    if game.rebinding then
+        if key == player.keyMaps.pause then
+            game.rebinding = nil
+            return
+        end
+        -- prevent binding two actions to the same key
+        for action, boundKey in pairs(player.keyMaps) do
+            if boundKey == key and action ~= game.rebinding then
+                player.keyMaps[action] = nil
+            end
+        end
+        player.keyMaps[game.rebinding] = key
+        game.rebinding = nil
+        return
+    end
+
+    if key == player.keyMaps.pause then
+        game.paused = not game.paused
+        return
+    end
+
+    if game.paused then
+        if key == "down" then
+            game.menuIndex = (game.menuIndex % #game.actionOrder) + 1
+        elseif key == "up" then
+            game.menuIndex = ((game.menuIndex - 2) % #game.actionOrder) + 1
+        elseif key == "return" then
+            game.rebinding = game.actionOrder[game.menuIndex]
+        end
+        return
+    end
+
     if key == player.keyMaps.retry then
         reset()
-    elseif key == player.keyMaps.pause then
-        game.paused = not game.paused
     end
 end
 
@@ -344,5 +376,30 @@ function love.draw()
             end
         end
         love.graphics.setColor(1, 1, 1, 1)
+    end
+    if game.paused then
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle("fill", 0, 0, game.max.x, game.max.y)
+        love.graphics.setColor(1, 1, 1, 1)
+
+        love.graphics.printf("Paused", game.middle.x - 300, game.middle.y - 220, 600, "center")
+
+        for i, action in ipairs(game.actionOrder) do
+            local y = game.middle.y - 140 + (i - 1) * 60
+            local label = action .. ":  " .. (player.keyMaps[action] or "unbound")
+
+            if i == game.menuIndex then
+                love.graphics.setColor(1, 1, 0, 1)
+                if game.rebinding == action then
+                    label = action .. ":  press a key..."
+                end
+            else
+                love.graphics.setColor(1, 1, 1, 1)
+            end
+            love.graphics.printf(label, game.middle.x - 300, y, 600, "center")
+        end
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.printf("Up/Down to select, Enter to rebind, Esc to cancel", game.middle.x - 400, game.middle.y + 220, 800, "center")
     end
 end
