@@ -2,6 +2,7 @@ local game
 local player
 local grid
 local previewGrid
+local defaultKeyMaps
 
 local function loadHighScore()
     if love.filesystem.getInfo("highscore.txt") then
@@ -12,6 +13,31 @@ end
 
 local function saveHighScore()
     love.filesystem.write("highscore.txt", tostring(game.highScore))
+end
+
+local function loadKeyMaps()
+    local keyMaps = {}
+    for action, key in pairs(defaultKeyMaps) do
+        keyMaps[action] = key
+    end
+    if love.filesystem.getInfo("keymaps.txt") then
+        local contents = love.filesystem.read("keymaps.txt")
+        for line in contents:gmatch("[^\r\n]+") do
+            local action, key = line:match("([^:]+):([^:]+)")
+            if action and key then
+                keyMaps[action] = key
+            end
+        end
+    end
+    return keyMaps
+end
+
+local function saveKeyMaps(keyMaps)
+    local contents = ""
+    for action, key in pairs(keyMaps) do
+        contents = contents .. action .. ":" .. key .. "\n"
+    end
+    love.filesystem.write("keymaps.txt", contents)
 end
 
 function love.load()
@@ -36,7 +62,7 @@ function love.load()
         deathDuration = 1,
         previewTime = 1,
         previewing = true,
-        font = love.graphics.newFont(48),
+        font = love.graphics.newFont(46),
         highScore = 0,
         paused = false,
         rebinding = nil,
@@ -99,9 +125,18 @@ function love.load()
             }
         end
     end
+    defaultKeyMaps = {
+        jump = "space",
+        left = "a",
+        right = "d",
+        retry = "r",
+        new = "return",
+        pause = "escape"
+    }
     print(grid.width)
     print(grid.height)
     loadHighScore()
+    player.keyMaps = loadKeyMaps()
 end
 
 local function randomizeGrid(targetGrid)
@@ -306,6 +341,7 @@ function love.keypressed(key)
         end
         player.keyMaps[game.rebinding] = key
         game.rebinding = nil
+        saveKeyMaps(player.keyMaps)
         return
     end
 
@@ -319,6 +355,8 @@ function love.keypressed(key)
             game.menuIndex = (game.menuIndex % #game.actionOrder) + 1
         elseif key == "up" then
             game.menuIndex = ((game.menuIndex - 2) % #game.actionOrder) + 1
+        elseif key == "tab" then
+            game.menuIndex = (game.menuIndex % #game.actionOrder) + 1
         elseif key == "return" then
             game.rebinding = game.actionOrder[game.menuIndex]
         end
@@ -402,6 +440,6 @@ function love.draw()
         end
 
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.printf("Up/Down to select, Enter to rebind, Esc to cancel", game.middle.x - 400, game.middle.y + 220, 800, "center")
+        love.graphics.printf("Up/Down to select, Enter to rebind, Esc to cancel", game.middle.x - 400, game.middle.y + 250, 800, "center")
     end
 end
