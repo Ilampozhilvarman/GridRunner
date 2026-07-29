@@ -38,14 +38,20 @@ function love.load()
         previewing = true,
         font = love.graphics.newFont(48),
         highScore = 0,
+        paused = false
     }
     player = {
         x = game.middle.x,
         y = game.middle.y,
         speed = 400,
-        jumpKey = "space",
-        leftKey = "a",
-        rightKey = "d",
+        keyMaps = {
+            jump = "space",
+            left = "a",
+            right = "d",
+            retry = "r",
+            new = "enter",
+            pause = "escape"
+        },
         radius = 25,
         yVelocity = 0,
         gravity = 800,
@@ -250,10 +256,10 @@ function love.update(dt)
     end
     if game.dying then return end
     local newX = player.x
-    if love.keyboard.isDown(player.leftKey) then
+    if love.keyboard.isDown(player.keyMaps.left) then
         newX = newX - player.speed * dt
     end
-    if love.keyboard.isDown(player.rightKey) then
+    if love.keyboard.isDown(player.keyMaps.right) then
         newX = newX + player.speed * dt
     end
     if game.dying then return end
@@ -276,15 +282,17 @@ function love.update(dt)
         player.x = newX
     end
 
-    if love.keyboard.isDown(player.jumpKey) and player.onGround then
+    if love.keyboard.isDown(player.keyMaps.jump) and player.onGround then
         player.yVelocity = player.jumpForce
         player.onGround = false
     end
 end
 
 function love.keypressed(key)
-    if key == "r" then
+    if key == player.keyMaps.retry then
         reset()
+    elseif key == player.keyMaps.pause then
+        game.paused = not game.paused
     end
 end
 
@@ -307,7 +315,7 @@ function love.draw()
         love.graphics.rectangle("fill", player.x, player.y, player.radius, player.radius)
         love.graphics.setColor(1, 1, 1)
     else
-        love.graphics.printf("Game over, press enter to try again.", game.middle.x - 450, game.middle.y - 50, 900, "center")
+        love.graphics.printf("Game over, press " .. player.keyMaps.new .. " to try again.", game.middle.x - 450, game.middle.y - 50, 900, "center")
         love.graphics.printf("Score: " .. game.score, game.middle.x - 300, game.middle.y + 50, 600, "center")
         love.graphics.printf("High Score: " .. game.highScore, game.middle.x - 300, game.middle.y + 150, 600, "center")
     end
