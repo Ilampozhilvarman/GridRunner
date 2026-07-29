@@ -257,10 +257,10 @@ function love.update(dt)
     end
     if game.dying then return end
     local newX = player.x
-    if love.keyboard.isDown(player.keyMaps.left) then
+    if player.keyMaps.left and love.keyboard.isDown(player.keyMaps.left) then
         newX = newX - player.speed * dt
     end
-    if love.keyboard.isDown(player.keyMaps.right) then
+    if player.keyMaps.right and love.keyboard.isDown(player.keyMaps.right) then
         newX = newX + player.speed * dt
     end
     if game.dying then return end
@@ -283,7 +283,7 @@ function love.update(dt)
         player.x = newX
     end
 
-    if love.keyboard.isDown(player.keyMaps.jump) and player.onGround then
+    if player.keyMaps.jump and love.keyboard.isDown(player.keyMaps.jump) and player.onGround then
         player.yVelocity = player.jumpForce
         player.onGround = false
     end
@@ -297,9 +297,11 @@ function love.keypressed(key)
             return
         end
         -- prevent binding two actions to the same key
+        -- swap keys instead of leaving an action unbound
+        local oldKey = player.keyMaps[game.rebinding]
         for action, boundKey in pairs(player.keyMaps) do
             if boundKey == key and action ~= game.rebinding then
-                player.keyMaps[action] = nil
+                player.keyMaps[action] = oldKey
             end
         end
         player.keyMaps[game.rebinding] = key
@@ -347,7 +349,7 @@ function love.draw()
         love.graphics.rectangle("fill", player.x, player.y, player.radius, player.radius)
         love.graphics.setColor(1, 1, 1)
     else
-        love.graphics.printf("Game over, press " .. player.keyMaps.new .. " to try again.", game.middle.x - 450, game.middle.y - 50, 900, "center")
+        love.graphics.printf("Game over, press " .. (player.keyMaps.new or "unbound") .. " to try again.", game.middle.x - 450, game.middle.y - 50, 900, "center")
         love.graphics.printf("Score: " .. game.score, game.middle.x - 300, game.middle.y + 50, 600, "center")
         love.graphics.printf("High Score: " .. game.highScore, game.middle.x - 300, game.middle.y + 150, 600, "center")
     end
