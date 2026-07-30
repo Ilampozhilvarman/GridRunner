@@ -73,14 +73,6 @@ function love.load()
         x = game.middle.x,
         y = game.middle.y,
         speed = 400,
-        keyMaps = {
-            jump = "space",
-            left = "a",
-            right = "d",
-            retry = "r",
-            new = "return",
-            pause = "escape"
-        },
         radius = 25,
         yVelocity = 0,
         gravity = 800,
@@ -328,6 +320,11 @@ function love.keypressed(key)
     -- if we're waiting for a new key to bind, capture it and stop
     if game.rebinding then
         if key == player.keyMaps.pause then
+            game.rebinding = nil
+            return
+        end
+        local reserved = { up = true, down = true, tab = true, ["return"] = true }
+        if reserved[key] then
             game.rebinding = nil
             return
         end
