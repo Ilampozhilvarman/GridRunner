@@ -440,6 +440,6 @@ function love.draw()
         end
 
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.printf("Up/Down to select, Enter to rebind, Esc to cancel", game.middle.x - 400, game.middle.y + 250, 800, "center")
+        love.graphics.printf("Up/Down to select, Enter to rebind, pause button to cancel", game.middle.x - 400, game.middle.y + 250, 800, "center")
     end
 end
