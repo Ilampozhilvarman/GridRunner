@@ -67,6 +67,9 @@ function love.load()
         paused = false,
         rebinding = nil,
         menuIndex = 1,
+        message = nil,
+        messageTimer = 0,
+        messageDuration = 1.5,
         actionOrder = {"jump", "left", "right", "retry", "new", "pause"}
     }
     player = {
@@ -208,6 +211,12 @@ local function reset()
 end
 
 function love.update(dt)
+    if game.messageTimer > 0 then
+        game.messageTimer = game.messageTimer - dt
+        if game.messageTimer <= 0 then
+            game.message = nil
+        end
+    end
     if game.paused then return end
     if game.dying then
         game.deathTimer = game.deathTimer + dt
@@ -323,9 +332,12 @@ function love.keypressed(key)
             game.rebinding = nil
             return
         end
+        -- reserved for menu navigation, don't allow binding over these
         local reserved = { up = true, down = true, tab = true, ["return"] = true }
         if reserved[key] then
             game.rebinding = nil
+            game.message = "reserved key"
+            game.messageTimer = game.messageDuration
             return
         end
         -- prevent binding two actions to the same key
@@ -438,5 +450,10 @@ function love.draw()
 
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.printf("Up/Down to select, Enter to rebind, pause button to cancel", game.middle.x - 400, game.middle.y + 250, 800, "center")
+        if game.message then
+            love.graphics.setColor(1, 0.3, 0.3, 1)
+            love.graphics.printf(game.message, game.middle.x - 300, game.middle.y + 290, 600, "center")
+            love.graphics.setColor(1, 1, 1, 1)
+        end
     end
 end
