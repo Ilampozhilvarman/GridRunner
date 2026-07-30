@@ -435,7 +435,7 @@ function love.draw()
 
         for i, action in ipairs(game.actionOrder) do
             local y = game.middle.y - 140 + (i - 1) * 60
-            local label = action .. ":  " .. (player.keyMaps[action] or "unbound")
+            local label = action .. ":  " .. "<" .. (player.keyMaps[action] or "unbound") .. ">"
 
             if i == game.menuIndex then
                 love.graphics.setColor(1, 1, 0, 1)
